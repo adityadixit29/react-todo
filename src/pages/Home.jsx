@@ -1,9 +1,9 @@
-import axios from 'axios';
 import React, { useContext, useEffect, useState } from 'react'
-import toast from 'react-hot-toast';
-import { Navigate } from 'react-router-dom';
-import TodoItem from '../components/TodoItem';
+import axios from 'axios';
 import { Context, server } from '../main';
+import toast from 'react-hot-toast';
+import TodoItem from '../components/TodoItem';
+import { Navigate } from 'react-router-dom';
 
 const Home = () => {
   const [title, setTitle] = useState("");
@@ -17,11 +17,12 @@ const Home = () => {
 
   const updateHandlers = async (id) => {
     try {
-      const {data} = await axios.put(`${server}/task/${id}`,
-      {}, 
-      {
-        withCredentials: true,
-      });
+      const { data } = await axios.put(`${server}/task/${id}`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
       toast.success(data.message);
       setRefresh((prev) => !prev);
     } catch (error) {
@@ -30,7 +31,7 @@ const Home = () => {
   }
   const deleteHandler = async (id) => {
     try {
-      const {data} = await axios.delete(`${server}/task/${id}`, {
+      const { data } = await axios.delete(`${server}/task/${id}`, {
         withCredentials: true,
       });
       toast.success(data.message);
@@ -41,11 +42,11 @@ const Home = () => {
   }
 
 
-  const submitHandler = async(e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      const {data} = await axios.post(`${server}/task/new`, {
+      const { data } = await axios.post(`${server}/task/new`, {
         title,
         description,
       }, {
@@ -74,13 +75,13 @@ const Home = () => {
         setTasks(res.data.tasks);
       })
       .catch((e) => {
-       toast.error(e.response.data.message);
+        toast.error(e.response.data.message);
       });
   }, [refresh]);
 
   if (!isAuthenticated) return <Navigate to={"/login"} />
   return (
-    <>
+    <div className='container'>
       <div className="login">
         <section>
           <form onSubmit={submitHandler}>
@@ -103,11 +104,19 @@ const Home = () => {
       <section className="todosContainer">
         {
           tasks.map((i) => (
-            <TodoItem title={i.title} description={i.description} isCompleted={i.isCompleted} id={i._id} updateHandlers={updateHandlers} deleteHandler={deleteHandler} key={i._id} />
+            <TodoItem 
+            title={i.title} 
+            description={i.description} 
+            isCompleted={i.isCompleted} 
+            id={i._id} 
+            updateHandlers={updateHandlers} 
+            deleteHandler={deleteHandler} 
+            key={i._id} 
+            />
           ))
         }
       </section>
-    </>
+    </div>
   )
 }
 
