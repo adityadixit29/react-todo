@@ -6,60 +6,61 @@ import TodoItem from '../components/TodoItem';
 import { Context, server } from '../main';
 
 const Home = () => {
-  const [title,setTitle] = useState("");
-  const [description,setDescription] = useState("");
-  const [loading,setLoading] = useState(false);
-  const [tasks,setTasks] = useState([]);
-  const [refresh,setRefresh] = useState(false); 
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [tasks, setTasks] = useState([]);
+  const [refresh, setRefresh] = useState(false);
 
 
+  const { isAuthenticated } = useContext(Context);
 
-  const {isAuthenticated, setIsAuthenticated} = useContext(Context);
-
-  const updateHandlers=async(id)=>{
+  const updateHandlers = async (id) => {
     try {
-      await axios.put(`${server}/task/${id}`,{
-        withCredentials:true,
+      const {data} = await axios.put(`${server}/task/${id}`,
+      {}, 
+      {
+        withCredentials: true,
       });
-      toast.success("sucess");
-      setRefresh(true);
+      toast.success(data.message);
+      setRefresh((prev) => !prev);
     } catch (error) {
-      toast.error("error")
+      toast.error(error.response.data.message)
     }
   }
-  const deleteHandler=async(id)=>{
+  const deleteHandler = async (id) => {
     try {
-      await axios.delete(`${server}/task/${id}`,{
-        withCredentials:true,
+      const {data} = await axios.delete(`${server}/task/${id}`, {
+        withCredentials: true,
       });
-      toast.success("success");
-      setRefresh(true);
+      toast.success(data.message);
+      setRefresh((prev) => !prev);
     } catch (error) {
-      toast.error("error")
+      toast.error(error.response.data.message);
     }
   }
 
 
-  const submitHandler=(e)=>{
+  const submitHandler = async(e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      const data = axios.post(`${server}/task/new`,{
+      const {data} = await axios.post(`${server}/task/new`, {
         title,
         description,
-      },{
-        withCredentials:true,
-        headers:{
-          "Content-Type":"application/json",
+      }, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
         }
       });
       setTitle("");
       setDescription("");
-      toast.success("success")
+      toast.success(data.message)
       setLoading(false);
-      setRefresh(false);
+      setRefresh((prev) => !prev);
     } catch (error) {
-      toast.error("error")
+      toast.error(error.response.data.message);
       setLoading(false);
     }
   }
@@ -73,40 +74,40 @@ const Home = () => {
         setTasks(res.data.tasks);
       })
       .catch((e) => {
-        toast.error("e");
+       toast.error(e.response.data.message);
       });
   }, [refresh]);
 
-  if (!isAuthenticated) return <Navigate to={"/login"}/>
+  if (!isAuthenticated) return <Navigate to={"/login"} />
   return (
     <>
-    <div className="login">
-    <section>
-      <form onSubmit={submitHandler}>
-      <input type="text" 
-            placeholder='Title'
-            required
-            value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-      <input type="text" 
-            placeholder='Description'
-            required
-            value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <button disabled={loading} type='submit'>Add Task</button>
-      </form>
-    </section>
-  </div>
-  <section className="todosContainer">
-    {
-      tasks.map((i)=>(
-        <TodoItem title={i.title} description={i.description} isCompleted = {i.isCompleted} id = {i._id} updateHandlers={updateHandlers} deleteHandler={deleteHandler} key={i._id}/>
-      ))
-    }
-  </section>
-  </>
+      <div className="login">
+        <section>
+          <form onSubmit={submitHandler}>
+            <input type="text"
+              placeholder='Title'
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <input type="text"
+              placeholder='Description'
+              required
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+            <button disabled={loading} type='submit'>Add Task</button>
+          </form>
+        </section>
+      </div>
+      <section className="todosContainer">
+        {
+          tasks.map((i) => (
+            <TodoItem title={i.title} description={i.description} isCompleted={i.isCompleted} id={i._id} updateHandlers={updateHandlers} deleteHandler={deleteHandler} key={i._id} />
+          ))
+        }
+      </section>
+    </>
   )
 }
 
