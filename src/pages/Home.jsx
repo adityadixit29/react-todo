@@ -21,8 +21,8 @@ const Home = () => {
       await axios.put(`${server}/task/${id}`,{
         withCredentials:true,
       });
-      toast.success("sucess")
-      setRefresh((prev)=>!prev)
+      toast.success("sucess");
+      setRefresh(true);
     } catch (error) {
       toast.error("error")
     }
@@ -32,8 +32,8 @@ const Home = () => {
       await axios.delete(`${server}/task/${id}`,{
         withCredentials:true,
       });
-      toast.success("sucess")
-  ;
+      toast.success("success");
+      setRefresh(true);
     } catch (error) {
       toast.error("error")
     }
@@ -55,25 +55,27 @@ const Home = () => {
       });
       setTitle("");
       setDescription("");
-      toast.success(data.message)
+      toast.success("success")
       setLoading(false);
-      setRefresh((prev)=>!prev)
+      setRefresh(false);
     } catch (error) {
-      toast.error(error.responce.data.message)
+      toast.error("error")
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    const data = axios.get(`${server}/task/all`,{
-      withCredentials:true
-    }).then(res=>{
-     setTasks(res.data.tasks)
-    }).catch(e=>{
-      toast.error(e.responce.data.message)
-    })
-  }, [refresh])
-  
+    axios
+      .get(`${server}/task/all`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        setTasks(res.data.tasks);
+      })
+      .catch((e) => {
+        toast.error("e");
+      });
+  }, [refresh]);
 
   if (!isAuthenticated) return <Navigate to={"/login"}/>
   return (
